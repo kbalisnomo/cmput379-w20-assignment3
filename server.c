@@ -14,6 +14,8 @@ int main(int argc, char *argv[]) {
    char *command;
    char *machine;
    struct timeval tv = {60, 0};
+   time_t seconds;
+   time_t start;
    
    listenfd = socket(AF_INET, SOCK_STREAM, 0);
    memset(&serv_addr, '0', sizeof(serv_addr));
@@ -27,43 +29,39 @@ int main(int argc, char *argv[]) {
    bind(listenfd, (struct sockaddr*)&serv_addr, sizeof(serv_addr)); 
 
    listen(listenfd, 10); 
-
+   time(&start);
    while(1)
    {
-      // if (select(0, NULL, NULL, NULL, &tv) > 0) {
-      //    connfd = accept(listenfd, (struct sockaddr*)NULL, NULL); 
-      //    read(connfd, recvBuff, 1024); //receive a string in the form "Tn machine.pid"
-      //    transactions++;
-      //    command = strtok(recvBuff, " ");
-      //    machine = strtok(NULL, " ");
-      //    memmove(command, command+1, strlen(command));
-      //    n = atoi(command);
-      //    printf("%.2f: # %2d (T%3d) from %s\n", (float)time(NULL), transactions, n, machine);
-      //    Trans(n);
-      //    printf("%.2f: # %2d (Done) from %s\n", (float)time(NULL), transactions, machine);
-      //    snprintf(sendBuff, 1025, "%d", transactions);
-      //    send(connfd, sendBuff, strlen(sendBuff), 0);
-      //    close(connfd);
-      //    sleep(1);
-      // }
-      // else {
-      //    break;
-      // }
-      connfd = accept(listenfd, (struct sockaddr*)NULL, NULL); 
-      read(connfd, recvBuff, 1024); //receive a string in the form "Tn machine.pid"
-      transactions++;
-      command = strtok(recvBuff, " ");
-      machine = strtok(NULL, " ");
-      memmove(command, command+1, strlen(command));
-      n = atoi(command);
-      printf("%.2f: # %2d (T%3d) from %s\n", (float)time(NULL), transactions, n, machine);
-      Trans(n);
-      printf("%.2f: # %2d (Done) from %s\n", (float)time(NULL), transactions, machine);
-      snprintf(sendBuff, 1025, "%d", transactions);
-      send(connfd, sendBuff, strlen(sendBuff), 0);
-      close(connfd);
-      sleep(1);
+      fd_set read_fds;
+      FD_ZERO(&read_fds);
+      int fdmax = listenfd;
+      FD_SET(listenfd, &read_fds);
+      if (select(fdmax+1, &read_fds, NULL, NULL, &tv) > 0) {
+         connfd = accept(listenfd, (struct sockaddr*)NULL, NULL); 
+         read(connfd, recvBuff, 1024); //receive a string in the form "Tn machine.pid"
+         transactions++;
+         command = strtok(recvBuff, " ");
+         machine = strtok(NULL, " ");
+         memmove(command, command+1, strlen(command));
+         n = atoi(command);
+         time(&seconds);
+         printf("%.2ld: # %2d (T%3d) from %s\n", seconds, transactions, n, machine);
+         Trans(n);
+         time(&seconds);
+         printf("%.2ld: # %2d (Done) from %s\n", seconds, transactions, machine);
+         snprintf(sendBuff, 1025, "%d", transactions);
+         send(connfd, sendBuff, strlen(sendBuff), 0);
+         close(connfd);
+         sleep(1);
+      }
+      else {
+         break;
+      }
    }
-   printf("\nSUMMARY");
-   printf("");
+   time_t end; 
+   time(&end);
+   printf("\nSUMMARY\n");
+   printf("Total transactions %d\n", transactions);
+   printf("%ld transactions/sec (%d/%ld)", (transactions/((end - start))), transactions, (end-start));
+
 }

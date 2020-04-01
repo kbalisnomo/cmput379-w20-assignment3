@@ -12,13 +12,14 @@ int main(int argc, char *argv[]) {
     int sock_fd = 0, n = 0, transactions = 0;
     int port = atoi(argv[1]);
     char *ip_addr = argv[2];
-    char command[3];
+    char command[128];
     FILE *file;
     char filename[256];
     char host_buff[128];
     char pid_buff[128];
     pid_t pid;
     char sendBuff[1025];
+    time_t seconds;
 
     gethostname(host_buff, sizeof(host_buff)); 
     pid = getpid();
@@ -26,7 +27,6 @@ int main(int argc, char *argv[]) {
     strcpy(filename, host_buff);
     strcat(filename, ".");
     strcat(filename, pid_buff);
-    strcat(filename, ".log");
     file = fopen(filename, "w");
     fprintf(file, "Using port %d\n", port);
     fprintf(file, "Using server address %s\n", ip_addr);
@@ -66,10 +66,12 @@ int main(int argc, char *argv[]) {
             strcat(sendBuff, filename);
             send(sock_fd, sendBuff, strlen(sendBuff), 0);
             memmove(command, command+1, strlen(command));
-            fprintf(file, "%.2f: Send (T%s)\n", (float)time(NULL), command);
+            time(&seconds);
+            fprintf(file, "%.2ld: Send (T%s)\n", seconds, command);
             transactions++;
             read(sock_fd, recvBuff, sizeof(recvBuff)-1);
-            fprintf(file, "%.2f: Recv (D%s)\n", (float)time(NULL), recvBuff);
+            time(&seconds);
+            fprintf(file, "%.2ld: Recv (D%s)\n", seconds, recvBuff);
         }
         else if (command[0] == 'S') {
             Sleep(command[1]);
