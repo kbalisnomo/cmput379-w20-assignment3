@@ -1,0 +1,14 @@
+.\" Manpage for client.
+.TH client 1 "31 March 2020" "1.0" "client man page"
+.SH NAME
+client - starts a client
+.SH SYNOPSIS
+client [PORT] [IP-ADDRESS]
+.SH DESCRIPTION
+Starts a client which connects to a server and sends transactions for processing. Transactions are gathered via keyboard input [T(n) or S(n)].
+.SH OPTIONS
+The client does not take any options.
+.SH BUGS
+No known bugs.
+.SH AUTHOR
+Kyle Philip Balisnomo (kylephil@ualberta.ca)

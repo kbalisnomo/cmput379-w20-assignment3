@@ -1,0 +1,14 @@
+.\" Manpage for server.
+.TH server 1 "31 March 2020" "1.0" "server man page"
+.SH NAME
+server - starts a server
+.SH SYNOPSIS
+server [PORT]
+.SH DESCRIPTION
+Starts a server which listens for incoming transactions from clients for processing.
+.SH OPTIONS
+The server does not take any options.
+.SH BUGS
+No known bugs.
+.SH AUTHOR
+Kyle Philip Balisnomo (kylephil@ualberta.ca)
